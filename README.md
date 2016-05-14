@@ -3,7 +3,7 @@ Renames files in directory with given regular expression and substitution.
 
 ## Basic Useage
 
-```
+```php
 // We want to delete numbers from the files names.
 $renamer = new FilesRenamer(__DIR__ . '/files', '/\d*/', '');
 
