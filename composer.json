@@ -1,7 +1,16 @@
 {
     "name": "totem/files-renamer",
     "description": "Renames files in directory with a given renaming function.",
+	"license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
+	"authors": [
+		{
+			"name": "Ondřej Tom"
+		}
+	],
     "require": {
         "php": ">=7.0"
-    }
+    },
+	"autoload": {
+		"classmap": ["src/"]
+	}
 }
