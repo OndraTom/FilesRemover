@@ -1,6 +1,16 @@
 # FilesRenamer
 Renames files in directory with a given renaming function.
 
+## Installation
+The best way how to install is to [download a latest package](https://github.com/OndraTom/FilesRenamer/releases)
+or use a Composer:
+
+```
+php composer.phar require --dev totem/files-renamer
+```
+
+FileRenamer requires PHP 7.0.0 or later.
+
 ## Basic Useage
 
 ```php
