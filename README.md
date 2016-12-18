@@ -6,7 +6,7 @@ Renames files in directory with a given renaming function.
 ```php
 // We want to delete numbers from the file names.
 $renamer = new FilesRenamer(
-	__DIR__ . 'files',
+	__DIR__ . '/files',
 	function ($fileName) {
 		return preg_replace('/\d*/', '', $fileName);
 	}
