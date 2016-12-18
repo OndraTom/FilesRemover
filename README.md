@@ -1,11 +1,16 @@
 # FilesRenamer
-Renames files in directory with given regular expression and substitution.
+Renames files in directory with a given renaming function.
 
 ## Basic Useage
 
 ```php
-// We want to delete numbers from the files names.
-$renamer = new FilesRenamer(__DIR__ . '/files', '/\d*/', '');
+// We want to delete numbers from the file names.
+$renamer = new FilesRenamer(
+	__DIR__ . 'files',
+	function ($fileName) {
+		return preg_replace('/\d*/', '', $fileName);
+	}
+);
 
 // We will also rename the files in the subdirectories.
 $renamer->setRecursiveMode(true);

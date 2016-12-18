@@ -1,47 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Totem\Tools;
 
+use Iterator;
 use RecursiveIteratorIterator;
-use	RecursiveDirectoryIterator;
+use RecursiveDirectoryIterator;
 
 /**
- * Files renaming with preg_replace.
+ * Files renaming tools.
  * 
- * @author oto
+ * @author Ondøej Tom <info@ondratom.cz>
  */
-class FilesRenamer
+final class FilesRenamer
 {
+	/**
+	 * File types constants.
+	 */
+	const ITEM_FILE = 'file';
+	const ITEM_DIR	= 'directory';
+	
+	
 	/**
 	 * Selected files directory.
 	 * 
 	 * @var string
 	 */
-	protected $directory;
+	private $directory;
 	
 	
 	/**
-	 * Regular expression for file rename.
+	 * Function for getting the new file name.
 	 * 
-	 * @var string
+	 * @var callable
 	 */
-	protected $regex;
+	private $getNewFileName;
 	
 	
 	/**
-	 * Replacement for regex find.
+	 * Function for getting the new directory name.
 	 * 
-	 * @var string
+	 * @var callable
 	 */
-	protected $replacement;
-	
-	
-	/**
-	 * Maximum possible replacements.
-	 * 
-	 * @var int
-	 */
-	protected $limit;
+	private $getNewDirName;
 	
 	
 	/**
@@ -49,7 +51,7 @@ class FilesRenamer
 	 * 
 	 * @var bool
 	 */
-	protected $recursiveMode = false;
+	private $recursiveMode = false;
 	
 	
 	/**
@@ -57,20 +59,19 @@ class FilesRenamer
 	 * 
 	 * @var bool
 	 */
-	protected $debugMode = false;
+	private $debugMode = false;
 	
 	
 	/**
-	 * @param string $directory
-	 * @param string $regex
-	 * @param string $replacement
+	 * @param string	$directory
+	 * @param callable	$getNewFileName
+	 * @param callable	$getNewDirName
 	 */
-	public function __construct($directory, $regex, $replacement = '', $limit = -1)
+	public function __construct(string $directory, callable $getNewFileName, callable $getNewDirName = null)
 	{
-		$this->directory	= $directory;
-		$this->regex		= $regex;
-		$this->replacement	= $replacement;
-		$this->limit		= $limit;
+		$this->directory		= $directory;
+		$this->getNewFileName	= $getNewFileName;
+		$this->getNewDirName	= $getNewDirName;
 	}
 	
 	
@@ -79,7 +80,7 @@ class FilesRenamer
 	 * 
 	 * @return Iterator
 	 */
-	protected function getDirectoryFiles()
+	private function getDirectoryFiles(): Iterator
 	{
 		$directoryIterator = new RecursiveDirectoryIterator(
 					$this->directory,
@@ -104,9 +105,9 @@ class FilesRenamer
 	 * 
 	 * @param bool $flag
 	 */
-	public function setRecursiveMode($flag)
+	public function setRecursiveMode(bool $flag)
 	{
-		$this->recursiveMode = (bool) $flag;
+		$this->recursiveMode = $flag;
 	}
 	
 	
@@ -115,9 +116,9 @@ class FilesRenamer
 	 * 
 	 * @param bool $flag
 	 */
-	public function setDebugMode($flag)
+	public function setDebugMode(bool $flag)
 	{
-		$this->debugMode = (bool) $flag;
+		$this->debugMode = $flag;
 	}
 	
 	
@@ -128,21 +129,31 @@ class FilesRenamer
 	{
 		foreach ($this->getDirectoryFiles() as $file)
 		{
-			$newFileName = preg_replace(
-					$this->regex, 
-					$this->replacement, 
-					$file->getFileName(), 
-					$this->limit
-			);
-			
-			if ($this->debugMode)
+			// File
+			if ($file->isFile())
 			{
-				echo 'Old file name: ' . $file->getFileName() . 
-						' | New file name: ' . $newFileName . "\n\n";
+				$item			= self::ITEM_FILE;
+				$newItemName	= call_user_func($this->getNewFileName, $file->getFileName());
+			}
+			// Directory + renaming function is set.
+			else if ($file->isDir() && isset($this->getNewDirName))
+			{
+				$item			= self::ITEM_DIR;
+				$newItemName	= call_user_func($this->getNewDirName, $file->getFileName());
 			}
 			else
 			{
-				rename($file->getPathname(), $newFileName);
+				continue;
+			}
+			
+			if ($this->debugMode)
+			{
+				echo 'Old ' . $item . ' name: ' . $file->getFileName() . 
+						' | New file name: ' . $newItemName . "\n\n";
+			}
+			else
+			{
+				rename($file->getPathname(), $newItemName);
 			}
 		}
 		

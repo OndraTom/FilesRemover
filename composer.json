@@ -1,0 +1,7 @@
+{
+    "name": "totem/tools/files-renamer",
+    "description": "Renames files in directory with a given renaming function.",
+    "require": {
+        "php": ">=7.0"
+    }
+}
